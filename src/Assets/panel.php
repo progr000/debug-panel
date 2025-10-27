@@ -154,7 +154,7 @@ if (isset($__containers['__DEBUG_DATA'])) {
             </span>
             <span class="phpdebugbar-indicator">
                 <i class="phpdebugbar-fa phpdebugbar-fa-cogs"></i>
-                <span class="phpdebugbar-text"><?= /*size_format*/($__memory) ?></span>
+                <span class="phpdebugbar-text"><?= size_format($__memory) ?></span>
                 <span class="phpdebugbar-tooltip">Memory Usage</span>
             </span>
             <span class="phpdebugbar-indicator">
