@@ -1,0 +1,37 @@
+{
+  "name": "maksym/debug-panel",
+  "type": "library",
+  "description": "debug-panel",
+  "keywords": [
+    "debug",
+    "panel"
+  ],
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Maksym Haivoronskyi",
+      "email": "maksym.haivoronskyi@gmail.com"
+    }
+  ],
+  "require": {
+    "php": ">=5.3.0",
+    "ext-json": "*",
+    "maksym/config-lib": "^1.0",
+    "maksym/dumper": "^1.0"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "@stable"
+  },
+  "autoload": {
+    "psr-4": {
+      "Maksym\\DebugPanel\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Tests\\": "tests/"
+    }
+  },
+  "minimum-stability": "stable",
+  "prefer-stable": true
+}
