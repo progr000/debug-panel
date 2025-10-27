@@ -42,6 +42,12 @@ if (isset($__containers['routeData'])) {
     unset($__containers['routeData']);
 }
 
+/* __DEBUG_DATA */
+if (isset($__containers['__DEBUG_DATA'])) {
+    $__DEBUG_DATA = $__containers['__DEBUG_DATA'];
+    unset($__containers['__DEBUG_DATA']);
+}
+
 ?>
 <div class="phpdebugbar">
     <div class="phpdebugbar-drag-capture"></div>
@@ -105,12 +111,20 @@ if (isset($__containers['routeData'])) {
                 <span class="phpdebugbar-badge"></span>
             </a>
 
+            <?php if (isset($__DEBUG_DATA)) { ?>
+                <a class="phpdebugbar-tab js-dump-data phpdebugbar-active" data-tab="dump-data">
+                    <i class="phpdebugbar-fa phpdebugbar-fa-list-alt"></i>
+                    <span class="phpdebugbar-text">Dumped-data</span>
+                    <span class="phpdebugbar-badge"></span>
+                </a>
+            <?php } ?>
+
             <!-- Additional data-nav -->
             <?php
             if (count($__containers)) {
                 foreach ($__containers as $__KEY => $__DATA) {
                     ?>
-                    <a class="phpdebugbar-tab js-dump-data phpdebugbar-active" data-tab="dump-data">
+                    <a class="phpdebugbar-tab js-<?= $__KEY ?>-additional-data phpdebugbar-active" data-tab="<?= $__KEY ?>-additional-data">
                         <i class="phpdebugbar-fa phpdebugbar-fa-list-alt"></i>
                         <span class="phpdebugbar-text"><?= $__KEY ?></span>
                         <span class="phpdebugbar-badge"></span>
@@ -389,12 +403,19 @@ if (isset($__containers['routeData'])) {
             </dl>
         </div>
 
-        <!-- Additional tabs-nav-data -->
+        <!-- __DEBUG_DATA -->
+        <?php if (isset($__DEBUG_DATA)) { ?>
+            <div class="phpdebugbar-panel js-dump-data phpdebugbar-active">
+                <div class="phpdebugbar-dump-console" style="height: 100% !important;"><?= $__DEBUG_DATA; ?></div>
+            </div>
+        <?php } ?>
+
+        <!-- Additional data -->
         <?php
         if (count($__containers)) {
-            foreach ($__containers as $__DATA) {
+            foreach ($__containers as $__KEY => $__DATA) {
                 ?>
-                <div class="phpdebugbar-panel js-dump-data phpdebugbar-active">
+                <div class="phpdebugbar-panel js-<?= $__KEY ?>-additional-data phpdebugbar-active">
                     <div class="phpdebugbar-dump-console" style="height: 100% !important;"><?= dumpIntoStr($__DATA); ?></div>
                 </div>
                 <?php
