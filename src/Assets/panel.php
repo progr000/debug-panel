@@ -106,6 +106,7 @@ if (isset($__containers['routeData'])) {
             </a>
 
             <!-- Additional data-nav -->
+            <?php dd($__containers); ?>
             <?php foreach ($__containers as $__KEY => $__DATA) { ?>
             <a class="phpdebugbar-tab js-dump-data phpdebugbar-active" data-tab="dump-data">
                 <i class="phpdebugbar-fa phpdebugbar-fa-list-alt"></i>
@@ -252,13 +253,15 @@ if (isset($__containers['routeData'])) {
         <div class="phpdebugbar-panel js-session-data">
             <dl class="phpdebugbar-widgets-kvlist phpdebugbar-widgets-varlist">
                 <?php
-                foreach ($_SESSION as $key => $item) {
-                    ?>
-                    <dt class="phpdebugbar-widgets-key"><span title="<?= $key ?>"><?= $key ?></span></dt>
-                    <dd class="phpdebugbar-widgets-value">
-                        <?= dumpIntoStr($item) ?>
-                    </dd>
-                    <?php
+                if (isset($_SESSION) && count($_SESSION)) {
+                    foreach ($_SESSION as $key => $item) {
+                        ?>
+                        <dt class="phpdebugbar-widgets-key"><span title="<?= $key ?>"><?= $key ?></span></dt>
+                        <dd class="phpdebugbar-widgets-value">
+                            <?= dumpIntoStr($item) ?>
+                        </dd>
+                        <?php
+                    }
                 }
                 ?>
             </dl>
@@ -382,11 +385,17 @@ if (isset($__containers['routeData'])) {
         </div>
 
         <!-- Additional tabs-nav-data -->
-        <?php foreach ($__containers as $__DATA) { ?>
-        <div class="phpdebugbar-panel js-dump-data phpdebugbar-active">
-            <div class="phpdebugbar-dump-console" style="height: 100% !important;"><?= $__DATA ?></div>
-        </div>
-        <?php  } ?>
+        <?php
+        if (count($__containers)) {
+            foreach ($__containers as $__DATA) {
+            ?>
+            <div class="phpdebugbar-panel js-dump-data phpdebugbar-active">
+                <div class="phpdebugbar-dump-console" style="height: 100% !important;"><?= $__DATA ?></div>
+            </div>
+            <?php
+            }
+        }
+        ?>
 
 
     </div>
