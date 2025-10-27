@@ -5,7 +5,7 @@ namespace Maksym\DebugPanel;
 use Maksym\Config\ConfigException;
 use stdClass;
 
-class DebugDriver extends stdClass
+class DebugPanelDriver extends stdClass
 {
     const DEBUG_CSS_FILE = '/Assets/panel.css';
     const DEBUG_JS_FILE = '/Assets/panel.js';
@@ -22,7 +22,7 @@ class DebugDriver extends stdClass
 
 
     /**
-     * @return DebugDriver
+     * @return DebugPanelDriver
      */
     public static function getInstance()
     {

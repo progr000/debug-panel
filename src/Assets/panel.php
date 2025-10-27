@@ -19,13 +19,15 @@ if (isset($__containers['sqlLog'])) {
 }
 unset($__containers['sqlLog']);
 foreach ($__sql as $key => $item) {
-    if (!isset($item['sqlTimeStart'])) {
+    if (!isset($item['sqlTimeStart']) && is_array($__sql[$key])) {
         $__sql[$key]['sqlTimeStart'] = 0;
     }
-    if (!isset($item['sqlTimeFinish'])) {
+    if (!isset($item['sqlTimeFinish']) && is_array($__sql[$key])) {
         $__sql[$key]['sqlTimeFinish'] = 0;
     }
-    $sql_total_t += round(($__sql[$key]['sqlTimeFinish'] - $__sql[$key]['sqlTimeStart']) * 1000,2);
+    if (is_array($__sql[$key]) && isset($__sql[$key]['sqlTimeFinish'], $__sql[$key]['sqlTimeStart'])) {
+        $sql_total_t += round(($__sql[$key]['sqlTimeFinish'] - $__sql[$key]['sqlTimeStart']) * 1000, 2);
+    }
 }
 
 /* viewData */
@@ -157,7 +159,11 @@ if (isset($__containers['__DEBUG_DATA'])) {
             </span>
             <span class="phpdebugbar-indicator">
                 <i class="phpdebugbar-fa phpdebugbar-fa-share"></i>
-                <span class="phpdebugbar-text"><?= $_SERVER['REQUEST_METHOD'] . " " . $_SERVER['REQUEST_URI'] ?></span>
+                <span class="phpdebugbar-text"><?=
+                    isset($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI'])
+                            ? $_SERVER['REQUEST_METHOD'] . " " . $_SERVER['REQUEST_URI']
+                            : ""
+                    ?></span>
                 <span class="phpdebugbar-tooltip">Route</span>
             </span>
         </div>
@@ -204,21 +210,36 @@ if (isset($__containers['__DEBUG_DATA'])) {
                         <?php
                         $caller = '';
                         foreach ($__sql as $item) {
-                            foreach ($item['backtrace'] as $b) {
-                                if (isset($b['file']) && strrpos($b['file'], 'Driver.php') === false) {
-                                    $caller = $b['file'];
-                                    break;
+                            if (is_array($item) && isset(
+                                            $item['backtrace'],
+                                            $item['sql'],
+                                            $item['status'],
+                                            $item['label'],
+                                            $item['sqlTimeStart'],
+                                            $item['sqlTimeFinish'],
+                                            $item['connection'],
+                                            $item['driver'])
+                            ) {
+                                foreach ($item['backtrace'] as $b) {
+                                    if (isset($b['file']) && strrpos($b['file'], 'Driver.php') === false) {
+                                        $caller = $b['file'];
+                                        break;
+                                    }
                                 }
+                                ?>
+                                <li class="phpdebugbar-widgets-list-item <?= $item['status'] ?>" data-connection="migration" title="<?= $item['label'] ?>"><!--
+                                 --><code class="phpdebugbar-widgets-sql"><span class="hljs-operator"><?= $item['sql'] ?></span></code>
+                                    <span title="Duration" class="phpdebugbar-widgets-duration"><?= round(($item['sqlTimeFinish'] - $item['sqlTimeStart']) * 1000, 2); ?>ms</span>
+                                    <span title="Backtrace" class="phpdebugbar-widgets-stmt-id"><?= $caller ?></span>
+                                    <span title="Connection" class="phpdebugbar-widgets-database"><?= $item['connection'] ?></span>
+                                    <span title="Driver" class="phpdebugbar-widgets-database"><?= $item['driver'] ?></span><!--
+                             --></li>
+                                <?php
+                            } else {
+                                ?>
+                                <li class="phpdebugbar-widgets-list-item" data-connection="migration" title=""><?= $item ?></li>
+                                <?php
                             }
-                            ?>
-                            <li class="phpdebugbar-widgets-list-item <?= $item['status'] ?>" data-connection="migration" title="<?= $item['label'] ?>"><!--
-                        --><code class="phpdebugbar-widgets-sql"><span class="hljs-operator"><?= $item['sql'] ?></span></code>
-                                <span title="Duration" class="phpdebugbar-widgets-duration"><?= round(($item['sqlTimeFinish'] - $item['sqlTimeStart']) * 1000, 2); ?>ms</span>
-                                <span title="Backtrace" class="phpdebugbar-widgets-stmt-id"><?= $caller ?></span>
-                                <span title="Connection" class="phpdebugbar-widgets-database"><?= $item['connection'] ?></span>
-                                <span title="Driver" class="phpdebugbar-widgets-database"><?= $item['driver'] ?></span><!--
-                    --></li>
-                            <?php
                         }
                         ?>
                     </ul>
@@ -292,7 +313,7 @@ if (isset($__containers['__DEBUG_DATA'])) {
 
                 <dt class="phpdebugbar-widgets-key"><span title="UserAgent">UserAgent:</span></dt>
                 <dd class="phpdebugbar-widgets-value">
-                    <?= $_SERVER["HTTP_USER_AGENT"] ?>
+                    <?= isset($_SERVER["HTTP_USER_AGENT"]) ? $_SERVER["HTTP_USER_AGENT"] : "" ?>
                 </dd>
 
                 <dt class="phpdebugbar-widgets-key"><span title="IP">Remote IP:</span></dt>
