@@ -181,10 +181,6 @@ class DebugPanelDriver extends stdClass
         if (!config('minimize-plain-css-js', false)) {
             return $str;
         }
-        return str_replace(
-            array("> ", "\n", "\r\n", ": ", "; ", "} ", "{ ", " }", " {", " =", "= ", ", ", " ,"),
-            array(">", "", "", ":", ";", "}", "{", "}", "{", "=", "=", ",", ","),
-            trim(preg_replace("/[\s]+/", " ", $str))
-        );
+        return minimize($str);
     }
 }
