@@ -2,7 +2,6 @@
 
 namespace Maksym\DebugPanel;
 
-use Maksym\Config\ConfigException;
 use stdClass;
 
 class DebugPanelDriver extends stdClass
@@ -41,39 +40,31 @@ class DebugPanelDriver extends stdClass
     }
 
     /**
-     * @param string $container
+     * @param string $container_name
      * @param array|string $data
      * @return void
-     * @throws ConfigException
      */
     public function _set($container_name, $data)
     {
-        if (config('IS_DEBUG', false)) {
-            if (!isset($this->containers[$container_name])) {
-                $this->containers[$container_name] = array();
-            }
-
-            $this->containers[$container_name] = array_merge(
-                $this->containers[$container_name],
-                (is_array($data) ? $data : array($data))
-            );
+        if (!isset($this->containers[$container_name])) {
+            $this->containers[$container_name] = array();
         }
+
+        $this->containers[$container_name] = array_merge(
+            $this->containers[$container_name],
+            (is_array($data) ? $data : array($data))
+        );
     }
 
     /**
-     * @param string $container
+     * @param string $container_name
      * @return mixed
-     * @throws ConfigException
      */
     public function _get($container_name)
     {
-        if (config('IS_DEBUG', false)) {
-            return isset($this->containers[$container_name])
-                ? $this->containers[$container_name]
-                : null;
-        } else {
-            return array("This works only in debug mode, please put IS_DEBUG => true into config/main.php");
-        }
+        return isset($this->containers[$container_name])
+            ? $this->containers[$container_name]
+            : null;
     }
 
     /**
@@ -96,26 +87,20 @@ class DebugPanelDriver extends stdClass
     /**
      * @param array $vars
      * @return string
-     * @throws ConfigException
      */
     public function showDebugPanel($vars = array())
     {
-        if (config('SHOW_DEBUG_PANEL', false)) {
-            return
-                $this->getPanelCss() .
-                PHP_EOL .
-                $this->getPanelHtml($vars) .
-                PHP_EOL .
-                $this->getPanelJs() .
-                PHP_EOL;
-        }
-
-        return '';
+        return
+            $this->getPanelCss() .
+            PHP_EOL .
+            $this->getPanelHtml($vars) .
+            PHP_EOL .
+            $this->getPanelJs() .
+            PHP_EOL;
     }
 
     /**
      * @return string
-     * @throws ConfigException
      */
     private function getPanelCss()
     {
@@ -129,7 +114,6 @@ class DebugPanelDriver extends stdClass
 
     /**
      * @return string
-     * @throws ConfigException
      */
     private function getPanelJs()
     {
@@ -144,7 +128,6 @@ class DebugPanelDriver extends stdClass
     /**
      * @param array $vars
      * @return false|string
-     * @throws ConfigException
      */
     private function getPanelHtml($vars = array())
     {
@@ -174,13 +157,10 @@ class DebugPanelDriver extends stdClass
      * TODO: create separate helper on packagist.org and move this function there (and other helpful functions)
      * @param string $str
      * @return string
-     * @throws ConfigException
      */
     private static function minimize($str)
     {
-        if (!config('minimize-plain-css-js', false)) {
-            return $str;
-        }
+        //return $str;
         return minimize($str);
     }
 }
