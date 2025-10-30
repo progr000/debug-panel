@@ -3163,6 +3163,10 @@ ul.phpdebugbar-widgets-list ul.phpdebugbar-widgets-table-list {
     color: #888;
 }
 
+.phpdebugbar-red-text {
+    color: #ff0000;
+}
+
 ul.phpdebugbar-widgets-cache a.phpdebugbar-widgets-forget {
     float: right;
     font-size: 12px;

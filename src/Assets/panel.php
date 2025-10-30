@@ -50,6 +50,10 @@ if (isset($__containers['__DEBUG_DATA'])) {
     unset($__containers['__DEBUG_DATA']);
 }
 
+if (isset($__containers['phpErrors'])) {
+    $__php_errors = $__containers['phpErrors'];
+    unset($__containers['phpErrors']);
+}
 ?>
 <div class="phpdebugbar">
     <div class="phpdebugbar-drag-capture"></div>
@@ -121,6 +125,14 @@ if (isset($__containers['__DEBUG_DATA'])) {
                 </a>
             <?php } ?>
 
+            <?php if (isset($__php_errors)) { ?>
+                <a class="phpdebugbar-tab js-phpErrors-data phpdebugbar-active" data-tab="phpErrors-data">
+                    <i class="phpdebugbar-fa phpdebugbar-fa-list-alt"></i>
+                    <span class="phpdebugbar-text phpdebugbar-red-text">PHP ERRORS</span>
+                    <span class="phpdebugbar-badge phpdebugbar-visible"><?= count($__php_errors) ?></span>
+                </a>
+            <?php } ?>
+
             <!-- Additional data-nav -->
             <?php
             if (count($__containers)) {
@@ -128,7 +140,7 @@ if (isset($__containers['__DEBUG_DATA'])) {
                     ?>
                     <a class="phpdebugbar-tab js-<?= $__KEY ?>-additional-data phpdebugbar-active" data-tab="<?= $__KEY ?>-additional-data">
                         <i class="phpdebugbar-fa phpdebugbar-fa-list-alt"></i>
-                        <span class="phpdebugbar-text"><?= $__KEY ?></span>
+                        <span class="phpdebugbar-text <?= strrpos(mb_strtolower($__KEY), "error") !== false ? "phpdebugbar-red-text" : "" ?>"><?= $__KEY ?></span>
                         <span class="phpdebugbar-badge"></span>
                     </a>
                     <?php
@@ -428,6 +440,38 @@ if (isset($__containers['__DEBUG_DATA'])) {
         <?php if (isset($__DEBUG_DATA)) { ?>
             <div class="phpdebugbar-panel js-dump-data phpdebugbar-active">
                 <div class="phpdebugbar-dump-console" style="height: 100% !important;"><?= $__DEBUG_DATA; ?></div>
+            </div>
+        <?php } ?>
+
+        <?php if (isset($__php_errors)) { ?>
+            <div class="phpdebugbar-panel js-phpErrors-data">
+                <div class="phpdebugbar-widgets-sqlqueries">
+                    <ul class="phpdebugbar-widgets-list">
+                        <?php
+                        foreach ($__php_errors as $item) {
+                            if (is_array($item) &&
+                                isset(
+                                    $item['errstr'],
+                                    $item['errfile'],
+                                    $item['errline']
+                                ))
+                            {
+                                ?>
+                                <li class="phpdebugbar-widgets-list-item" data-connection="migration"><!--
+                                 --><code class="phpdebugbar-widgets-sql"><span class="hljs-operator"><?= $item['errstr'] ?></span></code>
+                                    <span title="Backtrace" class="phpdebugbar-widgets-stmt-id">File: <?= $item['errfile'] ?></span>
+                                    <span title="Connection" class="phpdebugbar-widgets-stmt-id">Line: <?= $item['errline'] ?></span><!--
+                             --></li>
+                                <?php
+                            } else {
+                                ?>
+                                <li class="phpdebugbar-widgets-list-item" data-connection="migration" title=""><?= is_array($item) ? implode(" --- ", $item) : $item ?></li>
+                                <?php
+                            }
+                        }
+                        ?>
+                    </ul>
+                </div>
             </div>
         <?php } ?>
 
