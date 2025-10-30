@@ -472,14 +472,14 @@ if (isset($__containers['phpErrors'])) {
                                         $error_level = 'Unknown';
                                 }
                                 ?>
-                                <li class="phpdebugbar-widgets-list-item" data-connection="migration"><!--
-                                 --><code class="phpdebugbar-widgets-sql">
+                                <li class="phpdebugbar-widgets-list-item" data-connection="migration">
+                                    <div class="phpdebugbar-widgets-sql" style="max-width: 40%">
                                         <span class="<?= $class ?>"><?= $error_level ?>: </span>
                                         <span class="hljs-operator"><?= $item['errstr'] ?></span>
-                                    </code>
-                                    <span title="Backtrace" class="phpdebugbar-widgets-stmt-id">File: <?= $item['errfile'] ?></span>
-                                    <span title="Connection" class="phpdebugbar-widgets-stmt-id">Line: <?= $item['errline'] ?></span><!--
-                             --></li>
+                                    </div>
+                                    <span title="Backtrace" class="phpdebugbar-widgets-stmt-id" style="max-width: 40%">File: <?= $item['errfile'] ?></span>
+                                    <span title="Connection" class="phpdebugbar-widgets-stmt-id" style="max-width: 20%">Line: <?= $item['errline'] ?></span>
+                                </li>
                                 <?php
                             } else {
                                 ?>
