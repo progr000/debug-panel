@@ -449,16 +449,34 @@ if (isset($__containers['phpErrors'])) {
                     <ul class="phpdebugbar-widgets-list">
                         <?php
                         foreach ($__php_errors as $item) {
-                            if (is_array($item) &&
-                                isset(
-                                    $item['errstr'],
-                                    $item['errfile'],
-                                    $item['errline']
-                                ))
+                            if (is_array($item) && isset($item['errstr'], $item['errfile'],$item['errline'], $item['errno']))
                             {
+                                switch ($item['errno']) {
+                                    case E_USER_NOTICE:
+                                    case E_NOTICE:
+                                        $class = 'error-notice';
+                                        $error_level = 'Notice';
+                                        break;
+                                    case E_USER_WARNING:
+                                    case E_WARNING:
+                                        $class = 'error-warning';
+                                        $error_level = 'Warning';
+                                        break;
+                                    case E_USER_ERROR:
+                                    case E_ERROR:
+                                        $class = 'error-error';
+                                        $error_level = 'Fatal error';
+                                        break;
+                                    default:
+                                        $class = 'error-unknown';
+                                        $error_level = 'Unknown';
+                                }
                                 ?>
                                 <li class="phpdebugbar-widgets-list-item" data-connection="migration"><!--
-                                 --><code class="phpdebugbar-widgets-sql"><span class="hljs-operator"><?= $item['errstr'] ?></span></code>
+                                 --><code class="phpdebugbar-widgets-sql">
+                                        <span class="<?= $class ?>"><?= $error_level ?>: </span>
+                                        <span class="hljs-operator"><?= $item['errstr'] ?></span>
+                                    </code>
                                     <span title="Backtrace" class="phpdebugbar-widgets-stmt-id">File: <?= $item['errfile'] ?></span>
                                     <span title="Connection" class="phpdebugbar-widgets-stmt-id">Line: <?= $item['errline'] ?></span><!--
                              --></li>

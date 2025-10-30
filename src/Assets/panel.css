@@ -3792,3 +3792,15 @@ div.phpdebugbar-dump-console pre {
     margin-bottom: 5px;
     padding: 3px;
 }
+span.error-unknown {
+    color: #008b8b;
+}
+span.error-notice {
+    color: #00ffff;
+}
+span.error-warning {
+    color: #ffff00;
+}
+span.error-error {
+    color: #ff0000;
+}
