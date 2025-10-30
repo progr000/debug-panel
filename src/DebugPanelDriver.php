@@ -2,9 +2,7 @@
 
 namespace Maksym\DebugPanel;
 
-use stdClass;
-
-class DebugPanelDriver extends stdClass
+class DebugPanelDriver extends \stdClass
 {
     const DEBUG_CSS_FILE = '/Assets/panel.css';
     const DEBUG_JS_FILE = '/Assets/panel.js';
@@ -14,19 +12,18 @@ class DebugPanelDriver extends stdClass
     private static $instance;
 
     /** @var array */
-    private $containers;
-
-    /** @var array */
     private $timingData = array();
 
+    /** @var array */
+    private $containers = array();
 
     /**
-     * @return DebugPanelDriver
+     * @return static
      */
     public static function getInstance()
     {
         if (self::$instance === null) {
-            self::$instance = new self();
+            self::$instance = new static();
         }
         return self::$instance;
     }
@@ -37,34 +34,6 @@ class DebugPanelDriver extends stdClass
     private function __construct()
     {
         $this->timingData['BootStart'] = microtime(true);
-    }
-
-    /**
-     * @param string $container_name
-     * @param array|string $data
-     * @return void
-     */
-    public function _set($container_name, $data)
-    {
-        if (!isset($this->containers[$container_name])) {
-            $this->containers[$container_name] = array();
-        }
-
-        $this->containers[$container_name] = array_merge(
-            $this->containers[$container_name],
-            (is_array($data) ? $data : array($data))
-        );
-    }
-
-    /**
-     * @param string $container_name
-     * @return mixed
-     */
-    public function _get($container_name)
-    {
-        return isset($this->containers[$container_name])
-            ? $this->containers[$container_name]
-            : null;
     }
 
     /**
@@ -84,6 +53,34 @@ class DebugPanelDriver extends stdClass
         $this->timingData['AppFinish'] = microtime(true);
     }
 
+    /**
+     * @param string $container_name
+     * @param array|string $data
+     * @return void
+     */
+    public function set($container_name, $data)
+    {
+        if (!isset($this->containers[$container_name])) {
+            $this->containers[$container_name] = array();
+        }
+
+        $this->containers[$container_name] = array_merge(
+            $this->containers[$container_name],
+            (is_array($data) ? $data : array($data))
+        );
+    }
+
+    /**
+     * @param string $container_name
+     * @return mixed
+     */
+    public function get($container_name)
+    {
+        return isset($this->containers[$container_name])
+            ? $this->containers[$container_name]
+            : null;
+    }
+    
     /**
      * @param array $vars
      * @return string
@@ -154,7 +151,6 @@ class DebugPanelDriver extends stdClass
     }
 
     /**
-     * TODO: create separate helper on packagist.org and move this function there (and other helpful functions)
      * @param string $str
      * @return string
      */

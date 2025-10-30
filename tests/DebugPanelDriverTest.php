@@ -32,14 +32,14 @@ class DebugPanelDriverTest extends TestCase
      */
     public function testSetAndGet()
     {
-        $res = self::$debug_instance->_get("sqlLog");
+        $res = self::$debug_instance->get("sqlLog");
         $this->assertEmpty($res);
-        self::$debug_instance->_set("sqlLog", 'SELECT version()');
-        self::$debug_instance->_set("sqlLog", array('SELECT 1'));
-        $res = self::$debug_instance->_get("sqlLog");
+        self::$debug_instance->set("sqlLog", 'SELECT version()');
+        self::$debug_instance->set("sqlLog", array('SELECT 1'));
+        $res = self::$debug_instance->get("sqlLog");
         $this->assertContains('SELECT 1', $res);
         $this->assertContains('SELECT version()', $res);
-        $res = self::$debug_instance->_get("notExistContainer");
+        $res = self::$debug_instance->get("notExistContainer");
         $this->assertNull($res);
     }
 
