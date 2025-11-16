@@ -19,13 +19,15 @@ if (isset($__containers['sqlLog'])) {
 }
 unset($__containers['sqlLog']);
 foreach ($__sql as $key => $item) {
-    if (!isset($item['sqlTimeStart'])) {
+    if (!isset($item['sqlTimeStart']) && is_array($__sql[$key])) {
         $__sql[$key]['sqlTimeStart'] = 0;
     }
-    if (!isset($item['sqlTimeFinish'])) {
+    if (!isset($item['sqlTimeFinish']) && is_array($__sql[$key])) {
         $__sql[$key]['sqlTimeFinish'] = 0;
     }
-    $sql_total_t += round(($__sql[$key]['sqlTimeFinish'] - $__sql[$key]['sqlTimeStart']) * 1000,2);
+    if (is_array($__sql[$key]) && isset($__sql[$key]['sqlTimeFinish'], $__sql[$key]['sqlTimeStart'])) {
+        $sql_total_t += round(($__sql[$key]['sqlTimeFinish'] - $__sql[$key]['sqlTimeStart']) * 1000, 2);
+    }
 }
 
 /* viewData */
@@ -42,6 +44,16 @@ if (isset($__containers['routeData'])) {
     unset($__containers['routeData']);
 }
 
+/* __DEBUG_DATA */
+if (isset($__containers['__DEBUG_DATA'])) {
+    $__DEBUG_DATA = $__containers['__DEBUG_DATA'];
+    unset($__containers['__DEBUG_DATA']);
+}
+
+if (isset($__containers['phpErrors'])) {
+    $__php_errors = $__containers['phpErrors'];
+    unset($__containers['phpErrors']);
+}
 ?>
 <div class="phpdebugbar">
     <div class="phpdebugbar-drag-capture"></div>
@@ -59,29 +71,29 @@ if (isset($__containers['routeData'])) {
 
             <!-- sql-data-nav -->
             <?php if (count($__sql)) { ?>
-            <a class="phpdebugbar-tab js-sql-data" data-tab="sql-data">
-                <i class="phpdebugbar-fa phpdebugbar-fa-database"></i>
-                <span class="phpdebugbar-text">Queries</span>
-                <span class="phpdebugbar-badge phpdebugbar-visible"><?= count($__sql) ?></span>
-            </a>
+                <a class="phpdebugbar-tab js-sql-data" data-tab="sql-data">
+                    <i class="phpdebugbar-fa phpdebugbar-fa-database"></i>
+                    <span class="phpdebugbar-text">Queries</span>
+                    <span class="phpdebugbar-badge phpdebugbar-visible"><?= count($__sql) ?></span>
+                </a>
             <?php } ?>
 
             <!-- view-data-nav -->
             <?php if (count($__view)) { ?>
-            <a class="phpdebugbar-tab js-view-data" data-tab="view-data">
-                <i class="phpdebugbar-fa phpdebugbar-fa-leaf"></i>
-                <span class="phpdebugbar-text">Views</span>
-                <span class="phpdebugbar-badge phpdebugbar-visible"><?= count($__view) ?></span>
-            </a>
+                <a class="phpdebugbar-tab js-view-data" data-tab="view-data">
+                    <i class="phpdebugbar-fa phpdebugbar-fa-leaf"></i>
+                    <span class="phpdebugbar-text">Views</span>
+                    <span class="phpdebugbar-badge phpdebugbar-visible"><?= count($__view) ?></span>
+                </a>
             <?php } ?>
 
             <!-- route-data-nav -->
             <?php if (count($__route)) { ?>
-            <a class="phpdebugbar-tab js-route-data" data-tab="route-data">
-                <i class="phpdebugbar-fa phpdebugbar-fa-share"></i>
-                <span class="phpdebugbar-text">Route</span>
-                <span class="phpdebugbar-badge"></span>
-            </a>
+                <a class="phpdebugbar-tab js-route-data" data-tab="route-data">
+                    <i class="phpdebugbar-fa phpdebugbar-fa-share"></i>
+                    <span class="phpdebugbar-text">Route</span>
+                    <span class="phpdebugbar-badge"></span>
+                </a>
             <?php } ?>
 
             <!-- session-data-nav -->
@@ -105,14 +117,36 @@ if (isset($__containers['routeData'])) {
                 <span class="phpdebugbar-badge"></span>
             </a>
 
-            <!-- Additional data-nav -->
-            <?php foreach ($__containers as $__KEY => $__DATA) { ?>
-            <a class="phpdebugbar-tab js-dump-data phpdebugbar-active" data-tab="dump-data">
-                <i class="phpdebugbar-fa phpdebugbar-fa-list-alt"></i>
-                <span class="phpdebugbar-text">$__KEY</span>
-                <span class="phpdebugbar-badge"></span>
-            </a>
+            <?php if (isset($__DEBUG_DATA)) { ?>
+                <a class="phpdebugbar-tab js-dump-data phpdebugbar-active" data-tab="dump-data">
+                    <i class="phpdebugbar-fa phpdebugbar-fa-list-alt"></i>
+                    <span class="phpdebugbar-text">Dumped-data</span>
+                    <span class="phpdebugbar-badge"></span>
+                </a>
             <?php } ?>
+
+            <?php if (isset($__php_errors)) { ?>
+                <a class="phpdebugbar-tab js-phpErrors-data phpdebugbar-active" data-tab="phpErrors-data">
+                    <i class="phpdebugbar-fa phpdebugbar-fa-list-alt"></i>
+                    <span class="phpdebugbar-text phpdebugbar-red-text">PHP ERRORS</span>
+                    <span class="phpdebugbar-badge phpdebugbar-visible"><?= count($__php_errors) ?></span>
+                </a>
+            <?php } ?>
+
+            <!-- Additional data-nav -->
+            <?php
+            if (count($__containers)) {
+                foreach ($__containers as $__KEY => $__DATA) {
+                    ?>
+                    <a class="phpdebugbar-tab js-<?= $__KEY ?>-additional-data phpdebugbar-active" data-tab="<?= $__KEY ?>-additional-data">
+                        <i class="phpdebugbar-fa phpdebugbar-fa-list-alt"></i>
+                        <span class="phpdebugbar-text <?= strrpos(mb_strtolower($__KEY), "error") !== false ? "phpdebugbar-red-text" : "" ?>"><?= $__KEY ?></span>
+                        <span class="phpdebugbar-badge"></span>
+                    </a>
+                    <?php
+                }
+            }
+            ?>
 
         </div>
 
@@ -132,12 +166,16 @@ if (isset($__containers['routeData'])) {
             </span>
             <span class="phpdebugbar-indicator">
                 <i class="phpdebugbar-fa phpdebugbar-fa-cogs"></i>
-                <span class="phpdebugbar-text"><?= /*size_format*/($__memory) ?></span>
+                <span class="phpdebugbar-text"><?= size_format($__memory) ?></span>
                 <span class="phpdebugbar-tooltip">Memory Usage</span>
             </span>
             <span class="phpdebugbar-indicator">
                 <i class="phpdebugbar-fa phpdebugbar-fa-share"></i>
-                <span class="phpdebugbar-text"><?= $_SERVER['REQUEST_METHOD'] . " " . $_SERVER['REQUEST_URI'] ?></span>
+                <span class="phpdebugbar-text"><?=
+                    isset($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI'])
+                            ? $_SERVER['REQUEST_METHOD'] . " " . $_SERVER['REQUEST_URI']
+                            : ""
+                    ?></span>
                 <span class="phpdebugbar-tooltip">Route</span>
             </span>
         </div>
@@ -151,7 +189,7 @@ if (isset($__containers['routeData'])) {
                 <li>
                     <table class="phpdebugbar-widgets-params phpdebugbar-timeline-table">
                         <tr>
-                            <td class="phpdebugbar-widgets-name">Booting - <?= $boot_t ?>ms</td>
+                            <td class="phpdebugbar-widgets-name"><span class="timing">Booting - <?= $boot_t ?>ms</span></td>
                             <td class="phpdebugbar-widgets-value">
                                 <div class="phpdebugbar-widgets-measure">
                                     <span class="phpdebugbar-widgets-value percentage" style="width:<?= $boot_p ?>%"></span>
@@ -160,7 +198,7 @@ if (isset($__containers['routeData'])) {
                             </td>
                         </tr>
                         <tr>
-                            <td class="phpdebugbar-widgets-name">Application - <?= $app_t ?>ms</td>
+                            <td class="phpdebugbar-widgets-name"><span class="timing">Application - <?= $app_t ?>ms</span></td>
                             <td class="phpdebugbar-widgets-value">
                                 <div class="phpdebugbar-widgets-measure">
                                     <span class="phpdebugbar-widgets-value percentage" style="width:<?= $app_p ?>%"></span>
@@ -175,90 +213,107 @@ if (isset($__containers['routeData'])) {
 
         <!-- sql-data -->
         <?php if (count($__sql)) { ?>
-        <div class="phpdebugbar-panel js-sql-data">
-            <div class="phpdebugbar-widgets-sqlqueries">
-                <div class="phpdebugbar-widgets-status"><span><?= count($__sql) ?> statements were executed</span><span
-                            title="Accumulated duration" class="phpdebugbar-widgets-duration"><?= $sql_total_t ?>μs</span></div>
-                <div class="phpdebugbar-widgets-toolbar"></div>
-                <ul class="phpdebugbar-widgets-list">
-                    <?php
-                    $caller = '';
-                    foreach ($__sql as $item) {
-                        foreach ($item['backtrace'] as $b) {
-                            if (isset($b['file']) && strrpos($b['file'], 'Driver.php') === false) {
-                                $caller = $b['file'];
-                                break;
+            <div class="phpdebugbar-panel js-sql-data">
+                <div class="phpdebugbar-widgets-sqlqueries">
+                    <div class="phpdebugbar-widgets-status"><span><?= count($__sql) ?> statements were executed</span><span
+                                title="Accumulated duration" class="phpdebugbar-widgets-duration"><?= $sql_total_t ?>μs</span></div>
+                    <div class="phpdebugbar-widgets-toolbar"></div>
+                    <ul class="phpdebugbar-widgets-list">
+                        <?php
+                        $caller = '';
+                        foreach ($__sql as $item) {
+                            if (is_array($item) && isset(
+                                            $item['backtrace'],
+                                            $item['sql'],
+                                            $item['status'],
+                                            $item['label'],
+                                            $item['sqlTimeStart'],
+                                            $item['sqlTimeFinish'],
+                                            $item['connection'],
+                                            $item['driver'])
+                            ) {
+                                foreach ($item['backtrace'] as $b) {
+                                    if (isset($b['file']) && strrpos($b['file'], 'Driver.php') === false) {
+                                        $caller = $b['file'];
+                                        break;
+                                    }
+                                }
+                                ?>
+                                <li class="phpdebugbar-widgets-list-item <?= $item['status'] ?>" data-connection="migration" title="<?= $item['label'] ?>"><!--
+                                 --><code class="phpdebugbar-widgets-sql"><span class="hljs-operator"><?= $item['sql'] ?></span></code>
+                                    <span title="Duration" class="phpdebugbar-widgets-duration"><?= round(($item['sqlTimeFinish'] - $item['sqlTimeStart']) * 1000, 2); ?>ms</span>
+                                    <span title="Backtrace" class="phpdebugbar-widgets-stmt-id"><?= $caller ?></span>
+                                    <span title="Connection" class="phpdebugbar-widgets-database"><?= $item['connection'] ?></span>
+                                    <span title="Driver" class="phpdebugbar-widgets-database"><?= $item['driver'] ?></span><!--
+                             --></li>
+                                <?php
+                            } else {
+                                ?>
+                                <li class="phpdebugbar-widgets-list-item" data-connection="migration" title=""><?= $item ?></li>
+                                <?php
                             }
                         }
                         ?>
-                        <li class="phpdebugbar-widgets-list-item <?= $item['status'] ?>" data-connection="migration" title="<?= $item['label'] ?>"><!--
-                        --><code class="phpdebugbar-widgets-sql"><span class="hljs-operator"><?= $item['sql'] ?></span></code>
-                            <span title="Duration" class="phpdebugbar-widgets-duration"><?= round(($item['sqlTimeFinish'] - $item['sqlTimeStart']) * 1000, 2); ?>ms</span>
-                            <span title="Backtrace" class="phpdebugbar-widgets-stmt-id"><?= $caller ?></span>
-                            <span title="Connection" class="phpdebugbar-widgets-database"><?= $item['connection'] ?></span>
-                            <span title="Driver" class="phpdebugbar-widgets-database"><?= $item['driver'] ?></span><!--
-                    --></li>
-                        <?php
-                    }
-                    ?>
-                </ul>
+                    </ul>
+                </div>
             </div>
-        </div>
         <?php } ?>
 
         <!-- view-data -->
         <?php if (count($__view)) { ?>
-        <div class="phpdebugbar-panel js-view-data">
-            <div class="phpdebugbar-widgets-templates">
-                <div class="phpdebugbar-widgets-status"><span><?= count($__view) ?> templates were rendered</span></div>
-                <ul class="phpdebugbar-widgets-list">
-                    <?php
-                    foreach ($__view as $item) {
-                        ?>
-                        <li class="phpdebugbar-widgets-list-item">
-                            <span class="phpdebugbar-widgets-name"><?= realpath($item) ?></span>
-                            <!--
-                            <span title="Parameter count" class="phpdebugbar-widgets-param-count">0</span>
-                            <span title="Type" class="phpdebugbar-widgets-type">blade</span>
-                            <a href="phpstorm://open?file=/app/resources/views/index.blade.php&amp;line=0" class="phpdebugbar-widgets-editor-link">file</a>
-                            -->
-                        </li>
+            <div class="phpdebugbar-panel js-view-data">
+                <div class="phpdebugbar-widgets-templates">
+                    <div class="phpdebugbar-widgets-status"><span><?= count($__view) ?> templates were rendered</span></div>
+                    <ul class="phpdebugbar-widgets-list">
                         <?php
-                    }
-                    ?>
-                </ul>
-                <div class="phpdebugbar-widgets-callgraph"></div>
+                        foreach ($__view as $item) {
+                            ?>
+                            <li class="phpdebugbar-widgets-list-item">
+                                <span class="phpdebugbar-widgets-name"><?= realpath($item) ?></span>
+                                <!--
+                                <span title="Parameter count" class="phpdebugbar-widgets-param-count">0</span>
+                                <span title="Type" class="phpdebugbar-widgets-type">blade</span>
+                                <a href="phpstorm://open?file=/app/resources/views/index.blade.php&amp;line=0" class="phpdebugbar-widgets-editor-link">file</a>
+                                -->
+                            </li>
+                            <?php
+                        }
+                        ?>
+                    </ul>
+                    <div class="phpdebugbar-widgets-callgraph"></div>
+                </div>
             </div>
-        </div>
         <?php } ?>
 
         <!-- route-data -->
         <?php if (count($__route)) { ?>
-        <div class="phpdebugbar-panel js-route-data">
-            <dl class="phpdebugbar-widgets-kvlist phpdebugbar-widgets-htmlvarlist">
-                <?php
-                foreach ($__route as $key => $item) {
-                    ?>
-                    <dt class="phpdebugbar-widgets-key"><span title="<?= $key ?>"><?= $key ?></span></dt>
-                    <dd class="phpdebugbar-widgets-value"><?= is_string($item) ? $item : dumpIntoStr($item) ?></dd>
+            <div class="phpdebugbar-panel js-route-data">
+                <dl class="phpdebugbar-widgets-kvlist phpdebugbar-widgets-htmlvarlist">
                     <?php
-                }
-                ?>
-            </dl>
-        </div>
+                    foreach ($__route as $key => $item) {
+                        ?>
+                        <dt class="phpdebugbar-widgets-key"><span title="<?= $key ?>"><?= $key ?></span></dt>
+                        <dd class="phpdebugbar-widgets-value"><?= is_string($item) ? $item : dumpIntoStr($item) ?></dd>
+                        <?php
+                    }
+                    ?>
+                </dl>
+            </div>
         <?php } ?>
 
         <!-- session-data -->
         <div class="phpdebugbar-panel js-session-data">
             <dl class="phpdebugbar-widgets-kvlist phpdebugbar-widgets-varlist">
                 <?php
-                foreach ($_SESSION as $key => $item) {
-                    ?>
-                    <dt class="phpdebugbar-widgets-key"><span title="<?= $key ?>"><?= $key ?></span></dt>
-                    <dd class="phpdebugbar-widgets-value">
-                        <?= dumpIntoStr($item) ?>
-                    </dd>
-                    <?php
+                if (isset($_SESSION) && count($_SESSION)) {
+                    foreach ($_SESSION as $key => $item) {
+                        ?>
+                        <dt class="phpdebugbar-widgets-key"><span title="<?= $key ?>"><?= $key ?></span></dt>
+                        <dd class="phpdebugbar-widgets-value">
+                            <?= dumpIntoStr($item) ?>
+                        </dd>
+                        <?php
+                    }
                 }
                 ?>
             </dl>
@@ -270,7 +325,7 @@ if (isset($__containers['routeData'])) {
 
                 <dt class="phpdebugbar-widgets-key"><span title="UserAgent">UserAgent:</span></dt>
                 <dd class="phpdebugbar-widgets-value">
-                    <?= $_SERVER["HTTP_USER_AGENT"] ?>
+                    <?= isset($_SERVER["HTTP_USER_AGENT"]) ? $_SERVER["HTTP_USER_AGENT"] : "" ?>
                 </dd>
 
                 <dt class="phpdebugbar-widgets-key"><span title="IP">Remote IP:</span></dt>
@@ -294,10 +349,10 @@ if (isset($__containers['routeData'])) {
                 </dd>
 
                 <?php
-                if (isset($_SERVER) && count($_SERVER)) {
-                    foreach ($_SERVER as $key => $item) {
+                if (function_exists('getallheaders')) {
+                    foreach (getallheaders() as $key => $item) {
                         ?>
-                        <dt class="phpdebugbar-widgets-key"><span title="<?= $key ?>">SERVER[<?= $key ?>]</span></dt>
+                        <dt class="phpdebugbar-widgets-key"><span title="<?= $key ?>">HEADERS[<?= $key ?>]</span></dt>
                         <dd class="phpdebugbar-widgets-value">
                             <?= dumpIntoStr($item) ?>
                         </dd>
@@ -305,10 +360,10 @@ if (isset($__containers['routeData'])) {
                     }
                 }
 
-                if (function_exists('getallheaders')) {
-                    foreach (getallheaders() as $key => $item) {
+                if (isset($_SERVER) && count($_SERVER)) {
+                    foreach ($_SERVER as $key => $item) {
                         ?>
-                        <dt class="phpdebugbar-widgets-key"><span title="<?= $key ?>">HEADERS[<?= $key ?>]</span></dt>
+                        <dt class="phpdebugbar-widgets-key"><span title="<?= $key ?>">SERVER[<?= $key ?>]</span></dt>
                         <dd class="phpdebugbar-widgets-value">
                             <?= dumpIntoStr($item) ?>
                         </dd>
@@ -381,12 +436,75 @@ if (isset($__containers['routeData'])) {
             </dl>
         </div>
 
-        <!-- Additional tabs-nav-data -->
-        <?php foreach ($__containers as $__DATA) { ?>
-        <div class="phpdebugbar-panel js-dump-data phpdebugbar-active">
-            <div class="phpdebugbar-dump-console" style="height: 100% !important;"><?= $__DATA ?></div>
-        </div>
-        <?php  } ?>
+        <!-- __DEBUG_DATA -->
+        <?php if (isset($__DEBUG_DATA)) { ?>
+            <div class="phpdebugbar-panel js-dump-data phpdebugbar-active">
+                <div class="phpdebugbar-dump-console" style="height: 100% !important;"><?= $__DEBUG_DATA; ?></div>
+            </div>
+        <?php } ?>
+
+        <?php if (isset($__php_errors)) { ?>
+            <div class="phpdebugbar-panel js-phpErrors-data">
+                <div class="phpdebugbar-widgets-sqlqueries">
+                    <ul class="phpdebugbar-widgets-list">
+                        <?php
+                        foreach ($__php_errors as $item) {
+                            if (is_array($item) && isset($item['errstr'], $item['errfile'],$item['errline'], $item['errno']))
+                            {
+                                switch ($item['errno']) {
+                                    case E_USER_NOTICE:
+                                    case E_NOTICE:
+                                        $class = 'error-notice';
+                                        $error_level = 'Notice';
+                                        break;
+                                    case E_USER_WARNING:
+                                    case E_WARNING:
+                                        $class = 'error-warning';
+                                        $error_level = 'Warning';
+                                        break;
+                                    case E_USER_ERROR:
+                                    case E_ERROR:
+                                        $class = 'error-error';
+                                        $error_level = 'Fatal error';
+                                        break;
+                                    default:
+                                        $class = 'error-unknown';
+                                        $error_level = 'Unknown';
+                                }
+                                ?>
+                                <li class="phpdebugbar-widgets-list-item" data-connection="migration">
+                                    <div class="phpdebugbar-widgets-sql" style="max-width: 40%">
+                                        <span class="<?= $class ?>"><?= $error_level ?>: </span>
+                                        <span class="hljs-operator"><?= $item['errstr'] ?></span>
+                                    </div>
+                                    <span title="Backtrace" class="phpdebugbar-widgets-stmt-id" style="max-width: 40%">File: <?= $item['errfile'] ?></span>
+                                    <span title="Connection" class="phpdebugbar-widgets-stmt-id" style="max-width: 20%">Line: <?= $item['errline'] ?></span>
+                                </li>
+                                <?php
+                            } else {
+                                ?>
+                                <li class="phpdebugbar-widgets-list-item" data-connection="migration" title=""><?= is_array($item) ? implode(" --- ", $item) : $item ?></li>
+                                <?php
+                            }
+                        }
+                        ?>
+                    </ul>
+                </div>
+            </div>
+        <?php } ?>
+
+        <!-- Additional data -->
+        <?php
+        if (count($__containers)) {
+            foreach ($__containers as $__KEY => $__DATA) {
+                ?>
+                <div class="phpdebugbar-panel js-<?= $__KEY ?>-additional-data phpdebugbar-active">
+                    <div class="phpdebugbar-dump-console" style="height: 100% !important;"><?= dumpIntoStr($__DATA); ?></div>
+                </div>
+                <?php
+            }
+        }
+        ?>
 
 
     </div>

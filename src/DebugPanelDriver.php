@@ -2,10 +2,7 @@
 
 namespace Maksym\DebugPanel;
 
-use Maksym\Config\ConfigException;
-use stdClass;
-
-class DebugDriver extends stdClass
+class DebugPanelDriver extends \stdClass
 {
     const DEBUG_CSS_FILE = '/Assets/panel.css';
     const DEBUG_JS_FILE = '/Assets/panel.js';
@@ -15,19 +12,18 @@ class DebugDriver extends stdClass
     private static $instance;
 
     /** @var array */
-    private $containers;
-
-    /** @var array */
     private $timingData = array();
 
+    /** @var array */
+    private $containers = array();
 
     /**
-     * @return DebugDriver
+     * @return static
      */
     public static function getInstance()
     {
         if (self::$instance === null) {
-            self::$instance = new self();
+            self::$instance = new static();
         }
         return self::$instance;
     }
@@ -38,42 +34,6 @@ class DebugDriver extends stdClass
     private function __construct()
     {
         $this->timingData['BootStart'] = microtime(true);
-    }
-
-    /**
-     * @param string $container
-     * @param array|string $data
-     * @return void
-     * @throws ConfigException
-     */
-    public function _set($container_name, $data)
-    {
-        if (config('IS_DEBUG', false)) {
-            if (!isset($this->containers[$container_name])) {
-                $this->containers[$container_name] = array();
-            }
-
-            $this->containers[$container_name] = array_merge(
-                $this->containers[$container_name],
-                (is_array($data) ? $data : array($data))
-            );
-        }
-    }
-
-    /**
-     * @param string $container
-     * @return mixed
-     * @throws ConfigException
-     */
-    public function _get($container_name)
-    {
-        if (config('IS_DEBUG', false)) {
-            return isset($this->containers[$container_name])
-                ? $this->containers[$container_name]
-                : null;
-        } else {
-            return array("This works only in debug mode, please put IS_DEBUG => true into config/main.php");
-        }
     }
 
     /**
@@ -94,28 +54,50 @@ class DebugDriver extends stdClass
     }
 
     /**
+     * @param string $container_name
+     * @param array|string $data
+     * @return void
+     */
+    public function set($container_name, $data)
+    {
+        if (!isset($this->containers[$container_name])) {
+            $this->containers[$container_name] = array();
+        }
+
+        $this->containers[$container_name] = array_merge(
+            $this->containers[$container_name],
+            (is_array($data) ? $data : array($data))
+        );
+    }
+
+    /**
+     * @param string $container_name
+     * @return mixed
+     */
+    public function get($container_name)
+    {
+        return isset($this->containers[$container_name])
+            ? $this->containers[$container_name]
+            : null;
+    }
+    
+    /**
      * @param array $vars
      * @return string
-     * @throws ConfigException
      */
     public function showDebugPanel($vars = array())
     {
-        if (config('SHOW_DEBUG_PANEL', false)) {
-            return
-                $this->getPanelCss() .
-                PHP_EOL .
-                $this->getPanelHtml($vars) .
-                PHP_EOL .
-                $this->getPanelJs() .
-                PHP_EOL;
-        }
-
-        return '';
+        return
+            $this->getPanelCss() .
+            PHP_EOL .
+            $this->getPanelHtml($vars) .
+            PHP_EOL .
+            $this->getPanelJs() .
+            PHP_EOL;
     }
 
     /**
      * @return string
-     * @throws ConfigException
      */
     private function getPanelCss()
     {
@@ -129,7 +111,6 @@ class DebugDriver extends stdClass
 
     /**
      * @return string
-     * @throws ConfigException
      */
     private function getPanelJs()
     {
@@ -144,7 +125,6 @@ class DebugDriver extends stdClass
     /**
      * @param array $vars
      * @return false|string
-     * @throws ConfigException
      */
     private function getPanelHtml($vars = array())
     {
@@ -171,20 +151,12 @@ class DebugDriver extends stdClass
     }
 
     /**
-     * TODO: create separate helper on packagist.org and move this function there (and other helpful functions)
      * @param string $str
      * @return string
-     * @throws ConfigException
      */
     private static function minimize($str)
     {
-        if (!config('minimize-plain-css-js', false)) {
-            return $str;
-        }
-        return str_replace(
-            array("> ", "\n", "\r\n", ": ", "; ", "} ", "{ ", " }", " {", " =", "= ", ", ", " ,"),
-            array(">", "", "", ":", ";", "}", "{", "}", "{", "=", "=", ",", ","),
-            trim(preg_replace("/[\s]+/", " ", $str))
-        );
+        //return $str;
+        return minimize($str);
     }
 }
